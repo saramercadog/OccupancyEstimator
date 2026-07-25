@@ -1,10 +1,11 @@
 #Packet sniffing from adapter
 
 from dataclasses import dataclass
-from typing import List, Optional
+from typing import List
 import config
 import subprocess
 import hashlib
+import csv
 
 @dataclass
 class Observation:
@@ -22,7 +23,7 @@ def capture_probe_requests() -> List[Observation]:
         "tshark",
         "-i", config.INTERFACE, 
         "-y", "IEEE802_11_RADIO",
-        "-a", f"duration:{config.CHANNEL_ANALYSIS_SECONDS}", #how long will it get the packages
+        "-a", f"duration:{config.ANALYSIS_SECONDS}", #how long will it get the packages
         "-Y", "wlan.fc.type_subtype == 4", #look for probe requests
         "-T", "fields", 
         "-E", "separator=,", #separates info with commas
@@ -38,6 +39,7 @@ def capture_probe_requests() -> List[Observation]:
 
     ## BASIC PARSING
     lines = result.stdout.strip().splitlines() #strips empty start and end spaces + turns output into
+    print("Tshark captured lines:", len(lines))
     return parser(lines)
 
 def parser(lines: List[str]) -> List[Observation]:
@@ -51,26 +53,35 @@ def parser(lines: List[str]) -> List[Observation]:
         #skip any empty lines
         if not line.strip():
             continue
-        for p in line.split(","): 
-            parts.append(p.strip().strip('"'))
-        if len(parts) != 4:
+        
+        parts = next(csv.reader([line]))
+        
+        if len(parts) != 4: #GOTTA UPDATE ON SSH
+            print("Bad line:", line)
             continue
+        
         timestamp_str, src_mac, rssi_str, freq_str = parts
 
         # For all elements in parts only parse them if it is possible, otherwise skip them
         try:
             timestamp = float(timestamp_str)
-        except ValueError:
+        except ValueError as e:
+            print("Parsing error:", line)
+            print(e)
             continue
 
         try:
-            rssi = int(rssi_str)
-        except ValueError:
+            rssi = int(rssi_str.split(",")[0])
+        except ValueError as e:
+            print("Parsing error:", line)
+            print(e)
             continue
 
         try:
             channel_freq = int(freq_str)
-        except ValueError:
+        except ValueError as e:
+            print("Parsing error:", line)
+            print(e)
             continue
 
         if not src_mac:
