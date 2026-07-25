@@ -1,4 +1,6 @@
 
 INTERFACE = "wlan1"
-CHANNEL_ANALYSIS_SECONDS = 30 
-DB_PATH = "data/occupancy.db"
+ANALYSIS_SECONDS = 30
+SLEEP_SECONDS = 30
+DB_PATH = "probes.db"
+CHANNEL = 1
