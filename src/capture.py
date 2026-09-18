@@ -1,11 +1,17 @@
 #Packet sniffing from adapter
 
 from dataclasses import dataclass
+import datetime
 from typing import List
+from dotenv import load_dotenv
+import os
 import config
 import subprocess
 import hashlib
 import csv
+
+load_dotenv()
+SECRET_KEY = os.getenv("SECRET_KEY")
 
 @dataclass
 class Observation:
@@ -102,5 +108,14 @@ def parser(lines: List[str]) -> List[Observation]:
 def hash_mac(mac:str):
     """
     returns an encrypted MAC address
-    """
-    return hashlib.sha256(mac.encode()).hexdigest()
+    """ 
+    
+    if not SECRET_KEY:
+        raise ValueError("SECRET_KEY environment variable is not set.")    
+    
+    hashed_mac =hashlib.sha256(mac.encode()).hexdigest()
+    today = datetime.datetime.utcnow().strftime("%Y-%m-%d")
+    daily_salt = hashlib.sha256(f"{SECRET_KEY}{today}".encode("utf-8")).hexdigest()
+    combined_string = f"{daily_salt}{hashed_mac}"
+    
+    return hashlib.sha256(combined_string.encode("utf-8")).hexdigest()
