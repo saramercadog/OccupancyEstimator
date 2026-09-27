@@ -2,5 +2,5 @@
 INTERFACE = "wlan1"
 ANALYSIS_SECONDS = 10
 SLEEP_SECONDS = 0
-DB_PATH = "probes.db"
+DB_PATH = "../data/probes.db"
 CHANNELS = [1,6,11]
