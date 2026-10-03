@@ -5,7 +5,7 @@ import datetime
 from typing import List
 from dotenv import load_dotenv
 import os
-import config
+import pi.capture.config as config
 import subprocess
 import hashlib
 import csv

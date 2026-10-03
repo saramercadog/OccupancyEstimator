@@ -1,8 +1,8 @@
 from itertools import cycle
 import subprocess
-import capture
-import config
-import logger
+import pi.capture.capture as capture
+import pi.capture.config as config
+import pi.capture.logger as logger
 import time
 
 def set_channel(channel: int):

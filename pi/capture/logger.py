@@ -1,7 +1,7 @@
 import sqlite3
 from typing import List
-import config
-from capture import Observation
+import pi.capture.config as config
+from pi.capture.capture import Observation
 
 def get_connection() -> sqlite3.Connection:
     """

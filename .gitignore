@@ -1,2 +1,8 @@
 .env
 probes.db
+probes.db copy
+.vscode/
+.DS_Store
+__pycache__/
+*.pyc
+*.db
