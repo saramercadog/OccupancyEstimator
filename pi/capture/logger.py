@@ -58,27 +58,6 @@ def insert_observations (ID: int, observations: List[Observation]):
         conn.commit()
     finally:
         conn.close()
-    
-
-def get_current_probes(scan_cycle_id: int):
-    """
-    Overwrites probes_current.csv with current probe data found in scan cycle
-    """
-    conn = get_connection()
-    try:
-        cursor = conn.execute(
-            """
-            SELECT *
-            FROM probes
-            WHERE scan_cycle_id = ?
-            """,
-            (scan_cycle_id,)
-        )
-
-        return cursor.fetchall()
-
-    finally:
-        conn.close()
         
 def get_next_cycle_id() -> int:
     """
