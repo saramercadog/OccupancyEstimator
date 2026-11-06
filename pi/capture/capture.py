@@ -41,7 +41,7 @@ def capture_probe_requests() -> List[Observation]:
         ]
     result = subprocess.run(cmd, capture_output=True, text=True)
     if result.returncode != 0:
-        raise RuntimeError("Tshark failed in terminal")
+        raise RuntimeError(f"Tshark failed: {result.stderr}")
 
     ## BASIC PARSING
     lines = result.stdout.strip().splitlines() #strips empty start and end spaces + turns output into
@@ -62,7 +62,7 @@ def parser(lines: List[str]) -> List[Observation]:
         
         parts = next(csv.reader([line]))
         
-        if len(parts) != 4: #GOTTA UPDATE ON SSH
+        if len(parts) != 4:
             print("Bad line:", line)
             continue
         
@@ -104,10 +104,9 @@ def parser(lines: List[str]) -> List[Observation]:
         )
     return observations
 
-# TODO
 def hash_mac(mac:str):
     """
-    returns an encrypted MAC address
+    returns a hashed MAC address
     """ 
     
     if not SECRET_KEY:
