@@ -1,3 +1,4 @@
+
 import json
 from dataclasses import asdict
 
@@ -14,19 +15,37 @@ TOPIC = "occupancy/measurements"
 def publish_measurement(measurement: Measurement) -> None:
     """
     Publishes an aggregated occupancy measurement to the MQTT broker.
+
+    Raises an exception if publishing fails.
     """
+
+    payload = json.dumps(asdict(measurement))
 
     client = mqtt.Client(
         mqtt.CallbackAPIVersion.VERSION2
     )
 
-    client.connect(BROKER_HOST, BROKER_PORT)
+    try:
+        client.connect(BROKER_HOST, BROKER_PORT)
 
-    payload = json.dumps(asdict(measurement))
+        client.loop_start()
 
-    client.publish(
-        TOPIC,
-        payload
-    )
+        message = client.publish(
+            topic=TOPIC,
+            payload=payload,
+            qos=1
+        )
 
-    client.disconnect()
+        message.wait_for_publish(timeout=10)
+
+        if not message.is_published():
+            raise TimeoutError("MQTT publish timed out")
+
+        if message.rc != mqtt.MQTT_ERR_SUCCESS:
+            raise RuntimeError(
+                f"MQTT publish failed: {mqtt.error_string(message.rc)}"
+            )
+
+    finally:
+        client.disconnect()
+        client.loop_stop()
