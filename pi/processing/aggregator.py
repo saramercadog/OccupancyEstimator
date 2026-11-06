@@ -21,7 +21,6 @@ def aggregate_observations(start: int, end: int) -> Measurement | None:
             """
             WITH mac_counts AS (
                 SELECT
-                    (scan_cycle_id - 1) / 10 + 1 AS window_id,
                     mac_address,
                     COUNT(*) AS times_seen
                 FROM probes

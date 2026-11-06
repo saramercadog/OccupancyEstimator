@@ -1,22 +1,30 @@
-from itertools import cycle
 import subprocess
+from pi.mqtt.publisher import publish_measurement
+from pi.processing.aggregator import aggregate_observations
 import pi.capture.capture as capture
 import pi.capture.config as config
 import pi.capture.logger as logger
 import time
 
+CYCLES_PER_WINDOW = 10  # Number of cycles to aggregate before publishing
+
 def set_channel(channel: int):
    """
    Sets the channel for sniffing to a specific frequency
    """
+   
    cmd = ["sudo", "iw", "dev", config.INTERFACE, "set", "channel", str(channel)]
    result = subprocess.run(cmd, capture_output=True, text=True)
    if result.returncode != 0:
-       raise RuntimeError("Failed to set channel")
+       raise RuntimeError(f"Failed to set channel {channel}: {result.stderr}")
 
 
 def main():
     cycle_id = logger.get_next_cycle_id() # on boot
+    
+    window_start = cycle_id
+    completed_cycles = 0
+    
     while True:
         for channel in config.CHANNELS:
             set_channel(channel)
@@ -26,13 +34,37 @@ def main():
 
             print("Cycle ID:", cycle_id, " | Observations:", len(observations)," | Channel:", channel)
             
-            if observations:
-                print("Example observation:")
-                print(observations[0])
-        cycle_id += 1
-        time.sleep(config.SLEEP_SECONDS)        
-            
+        completed_cycles+=1
+        
+        if completed_cycles == CYCLES_PER_WINDOW:
 
+            print(
+                f"Aggregating cycles {window_start} to {cycle_id}"
+            )
+
+            measurement = aggregate_observations(
+                window_start,
+                cycle_id
+            )
+
+            if measurement is not None:
+                try:
+                    publish_measurement(measurement)
+                    print("Measurement published successfully!")
+
+                except Exception as error:
+                    print(f"MQTT publishing failed: {error}")
+
+            else:
+                print("No observations in this window.")
+
+            # Start a new aggregation window
+            window_start = cycle_id + 1
+            completed_cycles = 0
+
+        cycle_id += 1
+      
+            
 if __name__ == "__main__":
     main()   
         
