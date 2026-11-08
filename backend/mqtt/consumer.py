@@ -1,7 +1,7 @@
 import json
 import paho.mqtt.client as mqtt
 
-BROKER_HOST = "172.20.10.3"
+BROKER_HOST = "localhost"
 BROKER_PORT = 1883
 TOPIC = "occupancy/measurements"
 
