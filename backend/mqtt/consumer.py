@@ -1,4 +1,6 @@
 import json
+import psycopg
+from backend.db.repository import insert_measurement
 import paho.mqtt.client as mqtt
 
 BROKER_HOST = "localhost"
@@ -19,22 +21,31 @@ def on_connect(client, userdata, flags, reason_code, properties):
 
 def on_message(client, userdata, message):
     """
-    Receives an MQTT message, decodes its payload,
-    and deserializes the JSON into a Python object.
+    Receives an MQTT message, deserializes its JSON payload,
+    and stores the measurement in PostgreSQL.
     """
     try:
-        # Step 1: Convert bytes into a UTF-8 string
+        # Step 1: Decode bytes into a UTF-8 string
         payload = message.payload.decode("utf-8")
 
-        # Step 2: Convert JSON string into a Python dictionary
+        # Step 2: Deserialize JSON into a Python dictionary
         measurement = json.loads(payload)
 
     except (UnicodeDecodeError, json.JSONDecodeError) as error:
         print(f"Invalid MQTT payload: {error}")
         return
 
-    print("Measurement received:")
-    print(measurement)
+    try:
+        # Step 3: Insert measurement into PostgreSQL
+        inserted = insert_measurement(measurement)
+
+        if inserted:
+            print("Measurement successfully stored in PostgreSQL!")
+        else:
+            print("Duplicate measurement ignored.")
+
+    except (KeyError, TypeError, ValueError, psycopg.Error) as error:
+        print(f"Failed to store measurement: {error}")
 
 
 def main():
