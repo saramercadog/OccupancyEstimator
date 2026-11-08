@@ -13,9 +13,10 @@ def insert_measurement(measurement: dict) -> bool:
             unique_mac_addresses,
             unique_mac_2plus,
             unique_mac_3plus,
+            probes_rssi_75,
             probes_rssi_80
         )
-        VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
         ON CONFLICT (start_cycle_id, end_cycle_id) DO NOTHING
         RETURNING id;
     """
@@ -28,6 +29,7 @@ def insert_measurement(measurement: dict) -> bool:
         measurement["unique_mac_addresses"],
         measurement["unique_mac_2plus"],
         measurement["unique_mac_3plus"],
+        measurement["probes_rssi_75"],
         measurement["probes_rssi_80"],
     )
 

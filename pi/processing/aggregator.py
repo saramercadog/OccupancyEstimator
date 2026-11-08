@@ -47,6 +47,8 @@ def aggregate_observations(start: int, end: int) -> Measurement | None:
                     WHERE times_seen >= 3
                 ) AS unique_mac_3plus,
 
+                COUNT(CASE WHEN rssi >= -75 THEN 1 END) AS probes_rssi_75,
+
                 COUNT(
                     CASE WHEN rssi >= -80 THEN 1 END
                 ) AS probes_rssi_80
@@ -70,7 +72,8 @@ def aggregate_observations(start: int, end: int) -> Measurement | None:
             unique_mac_addresses=result[4],
             unique_mac_2plus=result[5],
             unique_mac_3plus=result[6],
-            probes_rssi_80=result[7]
+            probes_rssi_75=result[7],
+            probes_rssi_80=result[8]
         )
 
     finally:

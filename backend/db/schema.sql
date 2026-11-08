@@ -10,6 +10,7 @@ CREATE TABLE measurements (
     unique_mac_addresses INTEGER NOT NULL,
     unique_mac_2plus INTEGER NOT NULL,
     unique_mac_3plus INTEGER NOT NULL,
+    probes_rssi_75 INTEGER NOT NULL,
     probes_rssi_80 INTEGER NOT NULL,
 
     CONSTRAINT valid_cycle_range
@@ -21,6 +22,7 @@ CREATE TABLE measurements (
             AND unique_mac_addresses >= 0
             AND unique_mac_2plus >= 0
             AND unique_mac_3plus >= 0
+            AND probes_rssi_75 >= 0
             AND probes_rssi_80 >= 0
         )
 );
