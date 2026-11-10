@@ -1,6 +1,7 @@
 import json
 import psycopg
 from backend.db.repository import insert_measurement
+from backend.db.room_repository import get_active_room_id
 import paho.mqtt.client as mqtt
 
 BROKER_HOST = "localhost"
@@ -36,11 +37,17 @@ def on_message(client, userdata, message):
         return
 
     try:
+        # Step 2.1: Get the active room ID
+        room_id = get_active_room_id()
+        if room_id is None:
+            print("No active room configured. Measurement not stored.")
+            return
+
         # Step 3: Insert measurement into PostgreSQL
-        inserted = insert_measurement(measurement)
+        inserted = insert_measurement(measurement, room_id)
 
         if inserted:
-            print("Measurement successfully stored in PostgreSQL!")
+            print("Measurement successfully stored for room ID:", room_id)
         else:
             print("Duplicate measurement ignored.")
 
