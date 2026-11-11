@@ -1,9 +1,9 @@
 CREATE TABLE rooms(
     id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    name TEXT NOT NULL UNIQUE
+    name TEXT NOT NULL UNIQUE,
     max_capacity INTEGER NOT NULL CHECK (max_capacity > 0),
     is_active BOOLEAN NOT NULL DEFAULT FALSE
-)
+);
 
 CREATE UNIQUE INDEX one_active_room
 ON rooms (is_active)
@@ -38,4 +38,6 @@ CREATE TABLE measurements (
             AND probes_rssi_75 >= 0
             AND probes_rssi_80 >= 0
         )
+        CONSTRAINT unique_measurement_window 
+            UNIQUE (start_cycle_id, end_cycle_id)
 );
