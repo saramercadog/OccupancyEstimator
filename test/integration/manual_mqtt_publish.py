@@ -19,6 +19,7 @@ def main():
         unique_mac_addresses=50,
         unique_mac_2plus=20,
         unique_mac_3plus=10,
+        probes_rssi_75=90,
         probes_rssi_80=80
     )
 
