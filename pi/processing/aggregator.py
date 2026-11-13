@@ -29,8 +29,8 @@ def aggregate_observations(start: int, end: int) -> Measurement | None:
             )
 
             SELECT
-                MIN(scan_cycle_id) AS start_cycle_id,
-                MAX(scan_cycle_id) AS end_cycle_id,
+                ? AS start_cycle_id,
+                ? AS end_cycle_id,
                 MAX(timestamp) AS timestamp,
                 COUNT(*) AS total_probes,
                 COUNT(DISTINCT mac_address) AS unique_mac_addresses,
@@ -56,12 +56,12 @@ def aggregate_observations(start: int, end: int) -> Measurement | None:
             FROM probes
             WHERE scan_cycle_id BETWEEN ? AND ?
             """,
-            (start, end, start, end)
+            (start, end, start, end, start, end)
         )
 
         result = cursor.fetchone()
 
-        if result is None or result[0] is None:
+        if result is None or result[3] is None:
             return None
 
         return Measurement(

@@ -23,7 +23,7 @@ def main():
     cycle_id = logger.get_next_cycle_id() # on boot
     
     window_start = ((cycle_id - 1) // CYCLES_PER_WINDOW) * CYCLES_PER_WINDOW + 1
-    completed_cycles = 0
+    completed_cycles = cycle_id - window_start
     
     while True:
         for channel in config.CHANNELS:
