@@ -1,14 +1,13 @@
 
 import json
-from dataclasses import asdict
-
+import os
 import paho.mqtt.client as mqtt
-
+from dataclasses import asdict
 from pi.processing.measurement import Measurement
 
 
-BROKER_HOST = "localhost"
-BROKER_PORT = 1883
+BROKER_HOST = os.getenv("MQTT_BROKER_HOST", "localhost")
+BROKER_PORT = os.getenv("MQTT_BROKER_PORT", 1883)
 TOPIC = "occupancy/measurements"
 
 

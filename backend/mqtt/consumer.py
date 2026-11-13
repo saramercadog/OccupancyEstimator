@@ -1,13 +1,13 @@
 import json
+import os
 import psycopg
 from backend.db.repository import insert_measurement
 from backend.db.room_repository import get_active_room_id
 import paho.mqtt.client as mqtt
 
-BROKER_HOST = "localhost"
-BROKER_PORT = 1883
+BROKER_HOST = os.getenv("MQTT_BROKER_HOST", "localhost")
+BROKER_PORT = os.getenv("MQTT_BROKER_PORT", 1883)
 TOPIC = "occupancy/measurements"
-
 
 def on_connect(client, userdata, flags, reason_code, properties):
     """
