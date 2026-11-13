@@ -22,7 +22,7 @@ def set_channel(channel: int):
 def main():
     cycle_id = logger.get_next_cycle_id() # on boot
     
-    window_start = cycle_id
+    window_start = ((cycle_id - 1) // CYCLES_PER_WINDOW) * CYCLES_PER_WINDOW + 1
     completed_cycles = 0
     
     while True:
@@ -34,6 +34,7 @@ def main():
 
             print("Cycle ID:", cycle_id, " | Observations:", len(observations)," | Channel:", channel)
             
+        logger.record_completed_cycle(cycle_id)
         completed_cycles+=1
         
         if completed_cycles == CYCLES_PER_WINDOW:
@@ -61,11 +62,8 @@ def main():
             # Start a new aggregation window
             window_start = cycle_id + 1
             completed_cycles = 0
-
-        cycle_id += 1
-      
             
-if __name__ == "__main__":
-    main()   
+        cycle_id += 1
         
-    
+if __name__ == "__main__":
+    main()    
