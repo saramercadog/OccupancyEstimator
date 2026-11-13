@@ -1,12 +1,11 @@
-import json
-import os
-import psycopg
-from backend.db.repository import insert_measurement
+import json, os, pydantic, psycopg
+from backend.db.measurement_repository import insert_measurement
 from backend.db.room_repository import get_active_room_id
+from backend.api.schemas import IncomingMeasurement
 import paho.mqtt.client as mqtt
 
 BROKER_HOST = os.getenv("MQTT_BROKER_HOST", "localhost")
-BROKER_PORT = os.getenv("MQTT_BROKER_PORT", 1883)
+BROKER_PORT = int(os.getenv("MQTT_BROKER_PORT", "1883"))
 TOPIC = "occupancy/measurements"
 
 def on_connect(client, userdata, flags, reason_code, properties):
@@ -29,10 +28,10 @@ def on_message(client, userdata, message):
         # Step 1: Decode bytes into a UTF-8 string
         payload = message.payload.decode("utf-8")
 
-        # Step 2: Deserialize JSON into a Python dictionary
-        measurement = json.loads(payload)
+        # Step 2: Deserialize JSON into a Python dictionary + validate with Pydantic
+        measurement = IncomingMeasurement.model_validate(json.loads(payload)).model_dump()
 
-    except (UnicodeDecodeError, json.JSONDecodeError) as error:
+    except (UnicodeDecodeError, json.JSONDecodeError, pydantic.ValidationError) as error:
         print(f"Invalid MQTT payload: {error}")
         return
 
