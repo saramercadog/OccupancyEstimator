@@ -7,7 +7,7 @@ from pi.processing.measurement import Measurement
 
 
 BROKER_HOST = os.getenv("MQTT_BROKER_HOST", "localhost")
-BROKER_PORT = os.getenv("MQTT_BROKER_PORT", 1883)
+BROKER_PORT = int(os.getenv("MQTT_BROKER_PORT", "1883"))
 TOPIC = "occupancy/measurements"
 
 
@@ -35,15 +35,15 @@ def publish_measurement(measurement: Measurement) -> None:
             qos=1
         )
 
-        message.wait_for_publish(timeout=10)
-
-        if not message.is_published():
-            raise TimeoutError("MQTT publish timed out")
-
         if message.rc != mqtt.MQTT_ERR_SUCCESS:
             raise RuntimeError(
                 f"MQTT publish failed: {mqtt.error_string(message.rc)}"
             )
+        
+        message.wait_for_publish(timeout=10)
+        
+        if not message.is_published():
+            raise TimeoutError("MQTT publish timed out")
 
     finally:
         client.disconnect()
