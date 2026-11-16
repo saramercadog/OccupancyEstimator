@@ -41,3 +41,17 @@ CREATE TABLE measurements (
         CONSTRAINT unique_measurement_window 
             UNIQUE (start_cycle_id, end_cycle_id)
 );
+
+CREATE TABLE predictions (
+    id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+
+    measurement_id BIGINT NOT NULL UNIQUE
+        REFERENCES measurements(id) ON DELETE CASCADE,
+
+    estimated_people INTEGER NOT NULL
+        CHECK (estimated_people >= 0),
+
+    model_version TEXT NOT NULL,
+
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);

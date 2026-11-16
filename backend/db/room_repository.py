@@ -18,6 +18,25 @@ def get_active_room_id() -> int | None:
 
     return result[0]
 
+def get_room_capacity(conn, room_id: int) -> int:
+    with conn.cursor() as cur:
+        cur.execute(
+            """
+            SELECT max_capacity
+            FROM rooms
+            WHERE id = %s
+            """,
+            (room_id,)
+        )
+
+        row = cur.fetchone()
+
+    if row is None:
+        raise ValueError(f"Room {room_id} not found")
+
+    return row[0]
+    
+
 def get_rooms_db() -> list[dict]:
     sql = """
         SELECT id, name, max_capacity, is_active
